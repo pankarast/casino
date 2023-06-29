@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dice Game</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</head>
+<body>
+<h1>Dice Game</h1>
+<button onclick="rollDice()">Play Game</button>
+<h2 id="nb"></h2>
+<h2 id="na"></h2>
+<h3 id="user-result"></h3>
+<h3 id="server-result"></h3>
+<h3 id="server-truth"></h3>
+<script>
+
+  function rollDice() {
+            // Generate random number Nb between 1-6
+            var Nb = Math.floor(Math.random() * 6) + 1;
+
+            // Generate random string rb
+            var rb = generateRandomString();
+            var Na;
+            var ra;
+            var h_commit;
+
+            // Make GET request to /roll endpoint
+            $.ajax({
+                url: '/game/roll',
+                data: { rb: rb },
+                success: function(data) {
+                    // Display Nb and Na
+                    $('#nb').text('Nb: ' + Nb);
+                    $('#na').text('Na: ' + data.na);
+
+                    // Store the generated values for verification
+                    console.log(data);
+                    Na = data.Na;
+                    ra = data.ra;
+                    h_commit = data.h_commit;
+
+                    // Make GET request to /result endpoint
+                    $.ajax({
+                        url: '/game/result',
+                        data: { Nb: Nb },
+                        success: function(result) {
+                        console.log(result);
+                            // Display the result for the user
+                            var userResult = $('#user-result');
+                            userResult.text('User Result: ');
+                            if (result.win === true) {
+                                userResult.append('You won!');
+                            } else if (result.win === false) {
+                                userResult.append('You lost!');
+                            } else {
+                                userResult.append('No one won!');
+                            }
+
+                            // Display the result for the server
+                            var serverResult = $('#server-result');
+                            serverResult.text('Server Result: ');
+                            if (result.win === true) {
+                                serverResult.append('Server lost!');
+                            } else if (result.win === false) {
+                                serverResult.append('Server won!');
+                            } else {
+                                serverResult.append('No one won!');
+                            }
+
+                            // Verify the server's commitment
+                            var h2 = calculateSHA256(result.concatenatedString);
+                            console.log(h2);
+                            console.log(Nb);
+                            console.log(ra);
+                            console.log(rb);
+                            var serverTruth = $('#server-truth');
+                            serverTruth.text('Server Truth: ' + (h2 === h_commit));
+                        }
+                    });
+                }
+            });
+        }
+
+        function generateRandomString() {
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var randomString = '';
+            for (var i = 0; i < 16; i++) {
+                var randomIndex = Math.floor(Math.random() * characters.length);
+                randomString += characters.charAt(randomIndex);
+            }
+            return randomString;
+        }
+function calculateSHA256(input) {
+      const hash = CryptoJS.SHA256(input);
+      return hash.toString(CryptoJS.enc.Hex);
+    }
+
+</script>
+</body>
+</html>
+

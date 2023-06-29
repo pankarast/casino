@@ -71,4 +71,16 @@ public class AuthController {
     public String login(){
         return "login";
     }
+
+    @GetMapping("/game")
+    public String gamePage() {
+        return "game";
+    }
+
+
+    @GetMapping("/game?continue")
+    public String gamePageContinue() {
+        return "game";
+    }
+
 }
