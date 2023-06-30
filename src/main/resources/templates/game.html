@@ -1,18 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
 <head>
+  <meta charset="UTF-8">
   <title>Dice Game</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+        crossorigin="anonymous">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 </head>
 <body>
-<h1>Dice Game</h1>
-<button onclick="rollDice()">Play Game</button>
-<h2 id="nb"></h2>
-<h2 id="na"></h2>
-<h3 id="user-result"></h3>
-<h3 id="server-result"></h3>
-<h3 id="server-truth"></h3>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" th:href="@{/index}">Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" th:href="@{/register}">Register</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" th:href="@{/logout}">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Centered Bootstrap Container</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Centered Bootstrap Container</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container vh-100">
+  <h1 class="text-center mt-5">Dice Game</h1>
+  <div class="row justify-content-center align-items-center flex-grow-1">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body text-center">
+          <h1>You</h1>
+          <h2 id="nb">Number:</h2>
+          <h3 id="user-result">Result:</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body text-center">
+          <h1>Server</h1>
+          <h2 id="na">Number:</h2>
+          <h3 id="server-result">Result:</h3>
+          <!-- <h3 id="server-truth"></h3> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+      <button class="btn btn-primary btn-block" onclick="rollDice()">Roll</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
 <script>
 
   function rollDice() {
@@ -31,8 +105,8 @@
                 data: { rb: rb },
                 success: function(data) {
                     // Display Nb and Na
-                    $('#nb').text('Nb: ' + Nb);
-                    $('#na').text('Na: ' + data.na);
+                    $('#nb').text('Number: ' + Nb);
+                    $('#na').text('Number: ' + data.na);
 
                     // Store the generated values for verification
                     console.log(data);
@@ -48,7 +122,7 @@
                         console.log(result);
                             // Display the result for the user
                             var userResult = $('#user-result');
-                            userResult.text('User Result: ');
+                            userResult.text('Result: ');
                             if (result.win === true) {
                                 userResult.append('You won!');
                             } else if (result.win === false) {
@@ -59,7 +133,7 @@
 
                             // Display the result for the server
                             var serverResult = $('#server-result');
-                            serverResult.text('Server Result: ');
+                            serverResult.text('Result: ');
                             if (result.win === true) {
                                 serverResult.append('Server lost!');
                             } else if (result.win === false) {
