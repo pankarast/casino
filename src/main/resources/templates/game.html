@@ -1,16 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>Dice Game</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-        crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -32,22 +28,6 @@
   </div>
 </nav>
 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Centered Bootstrap Container</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Centered Bootstrap Container</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-
 <div class="container vh-100">
   <h1 class="text-center mt-5">Dice Game</h1>
   <div class="row justify-content-center align-items-center flex-grow-1">
@@ -66,21 +46,17 @@
           <h1>Server</h1>
           <h2 id="na">Number:</h2>
           <h3 id="server-result">Result:</h3>
-          <h3 id="server-truth"></h3>
         </div>
       </div>
     </div>
   </div>
+  <h3 id="server-truth" class="text-center mt-5"></h3>
   <div class="row justify-content-center mt-4">
     <div class="col-md-6">
-      <button class="btn btn-primary btn-block" onclick="rollDice()">Roll</button>
+      <button class="btn btn-primary btn-block w-100" onclick="rollDice()">Roll</button>
     </div>
   </div>
 </div>
-
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
 
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -88,89 +64,83 @@
 </html>
 
 <script>
-
   function rollDice() {
-            // Generate random number Nb between 1-6
-            var Nb = Math.floor(Math.random() * 6) + 1;
+    // Generate random number Nb between 1-6
+    var Nb = Math.floor(Math.random() * 6) + 1;
 
-            // Generate random string rb
-            var rb = generateRandomString();
-            var Na;
-            var ra;
-            var h_commit;
+    // Generate random string rb
+    var rb = generateRandomString();
+    var Na;
+    var ra;
+    var h_commit;
 
-            // Make GET request to /roll endpoint
-            $.ajax({
-                url: '/game/roll',
-                data: { rb: rb },
-                success: function(data) {
-                    // Display Nb and Na
-                    $('#nb').text('Number: ' + Nb);
-                    $('#na').text('Number: ' + data.na);
+    // Make GET request to /roll endpoint
+    $.ajax({
+      url: '/game/roll',
+      data: { rb: rb },
+      success: function(data) {
+        // Display Nb and Na
+        $('#nb').text('Number: ' + Nb);
+        $('#na').text('Number: ' + data.na);
 
-                    // Store the generated values for verification
-                    console.log(data);
-                    Na = data.Na;
-                    ra = data.ra;
-                    h_commit = data.h_commit;
+        // Store the generated values for verification
+        console.log(data);
+        Na = data.Na;
+        ra = data.ra;
+        h_commit = data.h_commit;
 
-                    // Make GET request to /result endpoint
-                    $.ajax({
-                        url: '/game/result',
-                        data: { Nb: Nb },
-                        success: function(result) {
-                        console.log(result);
-                            // Display the result for the user
-                            var userResult = $('#user-result');
-                            userResult.text('Result: ');
-                            if (result.win === true) {
-                                userResult.append('You won!');
-                            } else if (result.win === false) {
-                                userResult.append('You lost!');
-                            } else {
-                                userResult.append('No one won!');
-                            }
-
-                            // Display the result for the server
-                            var serverResult = $('#server-result');
-                            serverResult.text('Result: ');
-                            if (result.win === true) {
-                                serverResult.append('Server lost!');
-                            } else if (result.win === false) {
-                                serverResult.append('Server won!');
-                            } else {
-                                serverResult.append('No one won!');
-                            }
-
-                            // Verify the server's commitment
-                            var h2 = calculateSHA256(result.concatenatedString);
-                            console.log(h2);
-                            console.log(Nb);
-                            console.log(ra);
-                            console.log(rb);
-                            var serverTruth = $('#server-truth');
-                            serverTruth.text('Server Truth: ' + (h2 === h_commit));
-                        }
-                    });
-                }
-            });
-        }
-
-        function generateRandomString() {
-            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            var randomString = '';
-            for (var i = 0; i < 16; i++) {
-                var randomIndex = Math.floor(Math.random() * characters.length);
-                randomString += characters.charAt(randomIndex);
+        // Make GET request to /result endpoint
+        $.ajax({
+          url: '/game/result',
+          data: { Nb: Nb },
+          success: function(result) {
+            console.log(result);
+            // Display the result for the user
+            var userResult = $('#user-result');
+            userResult.text('Result: ');
+            if (result.win === true) {
+              userResult.append('You won!');
+            } else if (result.win === false) {
+              userResult.append('You lost!');
+            } else {
+              userResult.append('No one won!');
             }
-            return randomString;
-        }
-function calculateSHA256(input) {
-      const hash = CryptoJS.SHA256(input);
-      return hash.toString(CryptoJS.enc.Hex);
-    }
 
+            // Display the result for the server
+            var serverResult = $('#server-result');
+            serverResult.text('Result: ');
+            if (result.win === true) {
+              serverResult.append('Server lost!');
+            } else if (result.win === false) {
+              serverResult.append('Server won!');
+            } else {
+              serverResult.append('No one won!');
+            }
+
+            // Verify the server's commitment
+            var h2 = calculateSHA256(result.concatenatedString);
+            var serverTruth = $('#server-truth');
+            serverTruth.text('Server Truth: ' + (h2 === h_commit));
+          }
+        });
+      }
+    });
+  }
+
+  function generateRandomString() {
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var randomString = '';
+    for (var i = 0; i < 16; i++) {
+      var randomIndex = Math.floor(Math.random() * characters.length);
+      randomString += characters.charAt(randomIndex);
+    }
+    return randomString;
+  }
+
+  function calculateSHA256(input) {
+    const hash = CryptoJS.SHA256(input);
+    return hash.toString(CryptoJS.enc.Hex);
+  }
 </script>
 </body>
 </html>
-
