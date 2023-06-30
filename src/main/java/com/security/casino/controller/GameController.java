@@ -1,42 +1,129 @@
 package com.security.casino.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 
-@Controller
+@RestController
 public class GameController {
 
-    /* Receives a random string from client and send the output of sha256 algorithm (digest). sha256 takes as parameter
-    the concatenated string of a random number, which ranges from 1 to 6, random string of client and a random string of server.
-     */
-    @GetMapping("/digest")
-    @ResponseBody
-    public byte[] sendDigest (@RequestParam(name = "clientRandomString") String clientRandomString) {
-        Random randomNumberGenerator = new Random (System.currentTimeMillis());
-        //nextInt is going to produce a number which ranges from 1 to 6
-        int randomNumber = randomNumberGenerator.nextInt(1, 7);
-        //Generates a random string with 7 characters
-        byte[] array = new byte[7]; // length is bounded by 7
-        new Random().nextBytes(array);
-        String serverRandomString = new String(array, Charset.forName("UTF-8"));
-        //Concatenates random number, random string of server and random string of client.
-        String concatenatedString = randomNumber + serverRandomString + clientRandomString;
-        byte [] response = new byte [15];
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            response = digest.digest(concatenatedString.getBytes(StandardCharsets.UTF_8));
-        } catch (NoSuchAlgorithmException e) {
+    private int Na;
+    private String ra;
+    private String rb;
+    private String h_commit;
 
-        }
-        return response;
+    @GetMapping("/game/roll")
+    public RollResponse roll(@RequestParam String rb) {
+        // Generate a random number Na between 1-6
+        Na = (int) (Math.random() * 6) + 1;
+
+        this.rb=rb;
+        // Generate a random string ra
+        ra = generateRandomString();
+
+        // Calculate h_commit = SHA2_256("Na" || ra || rb)
+        String concatenatedString = Na + ra + rb;
+        h_commit = calculateSHA256(concatenatedString);
+
+        return new RollResponse(h_commit, Na, ra);
     }
 
+    @GetMapping("/game/result")
+    public ResultResponse result(@RequestParam int Nb) {
+        // Calculate h2 = SHA2_256("Na" || ra || rb)
+        String concatenatedString = Na + ra + rb;
+
+        // Check if Nb > Na
+        if (Nb > Na) {
+            return new ResultResponse(true, concatenatedString);
+        }
+        // Check if Nb < Na
+        else if (Nb < Na) {
+            return new ResultResponse(false, concatenatedString);
+        }
+        // No one won
+        else {
+            return new ResultResponse(null, concatenatedString);
+        }
+    }
+
+    private String generateRandomString() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 16; i++) {
+            int randomIndex = (int) (Math.random() * characters.length());
+            sb.append(characters.charAt(randomIndex));
+        }
+        return sb.toString();
+    }
+
+    private static String calculateSHA256(String data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedHash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : encodedHash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            // Handle exception appropriately
+            return null;
+        }
+    }
+
+    static class RollResponse {
+        private String h_commit;
+        private int Na;
+
+        private String ra;
+
+        public RollResponse(String h_commit, int Na, String ra) {
+            this.h_commit = h_commit;
+            this.Na = Na;
+            this.ra = ra;
+        }
+
+        public String getH_commit() {
+            return h_commit;
+        }
+
+        public String getRa() {
+            return ra;
+        }
+
+        public void setRa(String ra) {
+            this.ra = ra;
+        }
+
+        public int getNa() {
+            return Na;
+        }
+    }
+
+    static class ResultResponse {
+        private Boolean win;
+        private String concatenatedString;
+
+        public ResultResponse(Boolean win, String concatenatedString) {
+            this.win = win;
+            this.concatenatedString = concatenatedString;
+        }
+
+        public Boolean getWin() {
+            return win;
+        }
+
+        public String getConcatenatedString() {
+            return concatenatedString;
+        }
+    }
 }

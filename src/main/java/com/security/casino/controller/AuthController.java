@@ -2,10 +2,8 @@ package com.security.casino.controller;
 
 import com.security.casino.dto.UserDto;
 import com.security.casino.entity.User;
-import com.security.casino.repository.UserRepository;
 import com.security.casino.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,9 +15,6 @@ import java.util.List;
 
 @Controller
 public class AuthController {
-
-    @Autowired
-    UserRepository userRepository;
 
     private UserService userService;
 
@@ -75,6 +70,17 @@ public class AuthController {
     @GetMapping("/login")
     public String login(){
         return "login";
+    }
+
+    @GetMapping("/game")
+    public String gamePage() {
+        return "game";
+    }
+
+
+    @GetMapping("/game?continue")
+    public String gamePageContinue() {
+        return "game";
     }
 
 }
